@@ -4,6 +4,12 @@ pragma solidity ^0.8.0;
 contract SchoolFeePayment {
     address public owner;
     mapping(address => uint) public studentBalances;
+    struct Transaction {
+        address student;
+        uint amount;
+        uint timestamp;
+    }
+    Transaction[] public transactions;
 
     event FeePaid(address indexed student, uint amount);
 
@@ -14,6 +20,7 @@ contract SchoolFeePayment {
     function payFee() public payable {
         require(msg.value > 0, "Payment must be greater than zero");
         studentBalances[msg.sender] += msg.value;
+        transactions.push(Transaction(msg.sender, msg.value, block.timestamp));
         emit FeePaid(msg.sender, msg.value);
     }
 
@@ -25,5 +32,9 @@ contract SchoolFeePayment {
 
     function getBalance() public view returns (uint) {
         return address(this).balance;
+    }
+
+    function getTransactions() public view returns (Transaction[] memory) {
+        return transactions;
     }
 }
